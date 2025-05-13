@@ -18,7 +18,10 @@ const IncidentCard = ({ incident }: IncidentCardProps) => {
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg">{incident.title}</CardTitle>
-            <Badge variant={`severity-${incident.severity.toLowerCase()}`}>
+            <Badge variant={
+              incident.severity === "High" ? "severity-high" : 
+              incident.severity === "Medium" ? "severity-medium" : "severity-low"
+            }>
               {incident.severity}
             </Badge>
           </div>
@@ -26,7 +29,10 @@ const IncidentCard = ({ incident }: IncidentCardProps) => {
         <CardContent>
           <p className="text-sm text-gray-600 line-clamp-2 mb-2">{incident.description}</p>
           <Badge
-            variant={`status-${incident.status.toLowerCase().replace(' ', '-')}`}
+            variant={
+              incident.status === "Open" ? "status-open" : 
+              incident.status === "In Progress" ? "status-in-progress" : "status-resolved"
+            }
           >
             {incident.status}
           </Badge>

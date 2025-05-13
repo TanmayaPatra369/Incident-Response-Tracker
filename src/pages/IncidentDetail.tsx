@@ -30,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useIncidents } from "@/contexts/IncidentContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -306,7 +306,8 @@ const IncidentDetail = () => {
                 <dt className="text-sm font-medium text-gray-500">Severity</dt>
                 <dd>
                   <Badge
-                    variant={`severity-${incident.severity.toLowerCase()}`}
+                    variant={incident.severity === "High" ? "severity-high" : 
+                           incident.severity === "Medium" ? "severity-medium" : "severity-low"}
                     className="mt-1"
                   >
                     {incident.severity}
@@ -317,7 +318,8 @@ const IncidentDetail = () => {
                 <dt className="text-sm font-medium text-gray-500">Status</dt>
                 <dd>
                   <Badge
-                    variant={`status-${incident.status.toLowerCase().replace(" ", "-")}`}
+                    variant={incident.status === "Open" ? "status-open" : 
+                           incident.status === "In Progress" ? "status-in-progress" : "status-resolved"}
                     className="mt-1"
                   >
                     {incident.status}
