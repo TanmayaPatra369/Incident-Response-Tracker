@@ -201,7 +201,10 @@ const IncidentDetail = () => {
                 <label className="block text-sm font-medium mb-1">
                   New Status
                 </label>
-                <Select value={newStatus} onValueChange={setNewStatus}>
+                <Select 
+                  value={newStatus} 
+                  onValueChange={(value: IncidentStatus | "") => setNewStatus(value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>

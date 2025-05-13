@@ -15,6 +15,8 @@ import Layout from "./components/Layout";
 import IncidentDetail from "./pages/IncidentDetail";
 import CreateIncident from "./pages/CreateIncident";
 import EditIncident from "./pages/EditIncident";
+import ActivityLog from "./pages/ActivityLog";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,8 @@ const App = () => (
                   <Route path="/incidents/create" element={<CreateIncident />} />
                   <Route path="/incidents/:id" element={<IncidentDetail />} />
                   <Route path="/incidents/:id/edit" element={<EditIncident />} />
+                  <Route path="/activity" element={<ActivityLog />} />
+                  <Route path="/settings" element={<Settings />} />
                 </Route>
               </Route>
               
