@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -15,6 +16,20 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        // Add new severity variants
+        "severity-high": 
+          "border-transparent bg-red-500 text-white hover:bg-red-600",
+        "severity-medium": 
+          "border-transparent bg-blue-500 text-white hover:bg-blue-600",
+        "severity-low": 
+          "border-transparent bg-green-500 text-white hover:bg-green-600",
+        // Add status variants
+        "status-open":
+          "border-transparent bg-orange-500 text-white hover:bg-orange-600",
+        "status-in-progress":
+          "border-transparent bg-amber-500 text-white hover:bg-amber-600",
+        "status-resolved":
+          "border-transparent bg-emerald-500 text-white hover:bg-emerald-600",
       },
     },
     defaultVariants: {

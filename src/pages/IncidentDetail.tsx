@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Edit, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Edit, Trash2, AlertTriangle, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -24,21 +23,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { useIncidents } from "@/contexts/IncidentContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDateTime, timeAgo } from "@/lib/date-utils";
 import { IncidentStatus } from "@/types/incident";
+import RCAForm from "@/components/incidents/RCAForm";
+import RCADisplay from "@/components/incidents/RCADisplay";
 
 const IncidentDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getIncident, deleteIncident, addStatusUpdate } = useIncidents();
+  const { getIncident, deleteIncident, addStatusUpdate, addRCA } = useIncidents();
   const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
   const [newStatus, setNewStatus] = useState<IncidentStatus | "">("");
   const [statusMessage, setStatusMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRCADialogOpen, setIsRCADialogOpen] = useState(false);
+  const [isSubmittingRCA, setIsSubmittingRCA] = useState(false);
 
   const incident = getIncident(id as string);
 
@@ -85,6 +96,21 @@ const IncidentDetail = () => {
       console.error("Error updating status:", error);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleRCASubmit = async (formData: any) => {
+    setIsSubmittingRCA(true);
+    try {
+      await addRCA(incident.id, {
+        ...formData,
+        updatedBy: user?.displayName || "Anonymous",
+      });
+      setIsRCADialogOpen(false);
+    } catch (error) {
+      console.error("Error adding RCA:", error);
+    } finally {
+      setIsSubmittingRCA(false);
     }
   };
 
@@ -149,6 +175,42 @@ const IncidentDetail = () => {
               ))}
             </div>
           </div>
+
+          {incident.rca ? (
+            <div className="bg-white p-6 rounded-lg border shadow-sm">
+              <RCADisplay rca={incident.rca} />
+            </div>
+          ) : (
+            <div className="bg-white p-6 rounded-lg border shadow-sm">
+              <div className="text-center py-6">
+                <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium mb-2">No RCA Available</h3>
+                <p className="text-gray-500 mb-4">
+                  There is no root cause analysis for this incident yet.
+                </p>
+                <Dialog open={isRCADialogOpen} onOpenChange={setIsRCADialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <FileText className="mr-2 h-4 w-4" />
+                      Create RCA
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-xl">
+                    <DialogHeader>
+                      <DialogTitle>Root Cause Analysis</DialogTitle>
+                      <DialogDescription>
+                        Document the root cause of this incident and how it was resolved.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <RCAForm 
+                      onSubmit={handleRCASubmit} 
+                      isSubmitting={isSubmittingRCA} 
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white p-6 rounded-lg border shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Status History</h2>
@@ -244,10 +306,8 @@ const IncidentDetail = () => {
                 <dt className="text-sm font-medium text-gray-500">Severity</dt>
                 <dd>
                   <Badge
-                    className={cn(
-                      "mt-1 rounded-md",
-                      `severity-${incident.severity.toLowerCase()}`
-                    )}
+                    variant={`severity-${incident.severity.toLowerCase()}`}
+                    className="mt-1"
                   >
                     {incident.severity}
                   </Badge>
@@ -257,10 +317,8 @@ const IncidentDetail = () => {
                 <dt className="text-sm font-medium text-gray-500">Status</dt>
                 <dd>
                   <Badge
-                    className={cn(
-                      "mt-1 rounded-md",
-                      `status-${incident.status.toLowerCase().replace(" ", "-")}`
-                    )}
+                    variant={`status-${incident.status.toLowerCase().replace(" ", "-")}`}
+                    className="mt-1"
                   >
                     {incident.status}
                   </Badge>

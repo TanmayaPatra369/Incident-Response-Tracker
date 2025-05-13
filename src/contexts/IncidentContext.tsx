@@ -1,17 +1,17 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { toast } from "@/components/ui/use-toast";
-import { Incident, StatusUpdate } from "@/types/incident";
+import { Incident, StatusUpdate, RootCauseAnalysis } from "@/types/incident";
 import { mockIncidents } from "@/data/mock-incidents";
 
 interface IncidentContextType {
   incidents: Incident[];
   loading: boolean;
-  createIncident: (incident: Omit<Incident, "id" | "createdAt" | "updatedAt" | "statusUpdates">) => Promise<Incident>;
+  createIncident: (incident: Omit<Incident, "id" | "createdAt" | "updatedAt" | "statusUpdates" | "rca">) => Promise<Incident>;
   updateIncident: (id: string, incident: Partial<Incident>) => Promise<Incident>;
   deleteIncident: (id: string) => Promise<void>;
   getIncident: (id: string) => Incident | undefined;
   addStatusUpdate: (incidentId: string, update: Omit<StatusUpdate, "id" | "timestamp">) => Promise<void>;
+  addRCA: (incidentId: string, rca: Omit<RootCauseAnalysis, "createdAt">) => Promise<void>;
 }
 
 const IncidentContext = createContext<IncidentContextType | null>(null);
@@ -52,7 +52,7 @@ export function IncidentProvider({ children }: IncidentProviderProps) {
   }, [incidents, loading]);
 
   const createIncident = async (
-    incidentData: Omit<Incident, "id" | "createdAt" | "updatedAt" | "statusUpdates">
+    incidentData: Omit<Incident, "id" | "createdAt" | "updatedAt" | "statusUpdates" | "rca">
   ): Promise<Incident> => {
     try {
       // Simulate API call
@@ -211,6 +211,50 @@ export function IncidentProvider({ children }: IncidentProviderProps) {
     }
   };
 
+  const addRCA = async (
+    incidentId: string,
+    rca: Omit<RootCauseAnalysis, "createdAt">
+  ): Promise<void> => {
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      const incidentIndex = incidents.findIndex((inc) => inc.id === incidentId);
+      if (incidentIndex === -1) {
+        throw new Error("Incident not found");
+      }
+
+      const now = new Date().toISOString();
+      const newRCA: RootCauseAnalysis = {
+        ...rca,
+        createdAt: now,
+      };
+
+      const updatedIncident = {
+        ...incidents[incidentIndex],
+        rca: newRCA,
+        updatedAt: now,
+      };
+
+      const newIncidents = [...incidents];
+      newIncidents[incidentIndex] = updatedIncident;
+      setIncidents(newIncidents);
+
+      toast({
+        title: "RCA added",
+        description: "Root cause analysis has been added to the incident",
+      });
+    } catch (error) {
+      console.error("Add RCA error:", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to add RCA",
+        description: error instanceof Error ? error.message : "An error occurred",
+      });
+      throw error;
+    }
+  };
+
   const value = {
     incidents,
     loading,
@@ -219,6 +263,7 @@ export function IncidentProvider({ children }: IncidentProviderProps) {
     deleteIncident,
     getIncident,
     addStatusUpdate,
+    addRCA,
   };
 
   return <IncidentContext.Provider value={value}>{children}</IncidentContext.Provider>;
