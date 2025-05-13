@@ -27,7 +27,7 @@ type ActivityEvent = {
 const ActivityLog = () => {
   const { incidents } = useIncidents();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   // Get all status updates across all incidents
   const allUpdates: ActivityEvent[] = incidents.flatMap((incident) =>
@@ -51,7 +51,7 @@ const ActivityLog = () => {
       event.update.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
       event.update.user.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = !statusFilter || event.update.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || event.update.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -82,7 +82,7 @@ const ActivityLog = () => {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Open">Open</SelectItem>
                 <SelectItem value="In Progress">In Progress</SelectItem>
                 <SelectItem value="Resolved">Resolved</SelectItem>
@@ -98,7 +98,7 @@ const ActivityLog = () => {
             <CardContent className="flex flex-col items-center justify-center p-6">
               <Clock className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground text-center">
-                {searchTerm || statusFilter
+                {searchTerm || statusFilter !== "all"
                   ? "No activity matching your filters"
                   : "No activity recorded yet"}
               </p>
