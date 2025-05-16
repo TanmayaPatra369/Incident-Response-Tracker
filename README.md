@@ -93,7 +93,7 @@ python background_job.py
 
 ---
 
-## 🤖 Automation Logic
+## 🤖 Automation Logic (To Be Implimented)
 
 A background job parses simulated logs every few seconds. When a line contains keywords like "error", "500", or "timeout", an incident is created automatically.
 
